@@ -8,16 +8,23 @@ on:
 
 jobs:
   register:
-    uses: ./.github/workflows/veracode-check-run.yml
-    with:
-      check_run_name: ${{ github.workflow }}
-      head_sha: ${{ github.event.client_payload.sha }}
-      repositroy_owner: ${{ github.event.client_payload.repository.owner }}
-      repositroy_name: ${{ github.event.client_payload.repository.name }}
-      event_type: ${{ github.event.client_payload.event_type }}
-      github_token: ${{ github.event.client_payload.token }}
-      run_id: ${{ github.run_id }}
-      branch: ${{ github.event.client_payload.repository.branch }}
+    runs-on: ubuntu-latest
+    name: register
+    steps:
+      - name: Register build
+        id: register-build
+        uses: veracode/github-actions-integration-helper@main
+        with:
+          action: registerBuild
+          token: ${{ github.event.client_payload.token }}
+          appname: ${{ github.event.client_payload.user_config.profile_name }}
+          source_repository: ${{ github.event.client_payload.repository.full_name }}
+          check_run_id: ${{ github.run_id }}
+          check_run_name: ${{ github.workflow }}
+          head_sha: ${{ github.event.client_payload.sha }}
+          event_type: ${{ github.event.client_payload.event_type }}
+          branch: ${{ github.event.client_payload.user_config.sandbox_scan.branch }}
+          issue_trigger_flow: ${{ github.event.client_payload.user_config.issue_trigger_flow }}
 
   build:
     runs-on: ubuntu-latest
